@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -89,7 +88,7 @@ public class PlayerListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if ((event.getHand() != null) && (event.getHand().equals(EquipmentSlot.HAND))) {
-			if (Visibility.getItemInHand(player).equals(Visibility.createItemStack(true))) {
+			if (Visibility.getItemInHand(player).isSimilar(Visibility.createItemStack(true))) {
 				if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 				if (!Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) { if (Visibility.enableWorldToggleMessage) { ChatManager.getInstance().sendMessage(player, Visibility.messageWorld); } return; }
 				if (!player.hasPermission("visibility.hide")) { ChatManager.getInstance().sendMessage(player, Visibility.messagePermission); return; }
@@ -116,7 +115,7 @@ public class PlayerListener implements Listener {
 				
 				PlayerManager.getInstance().setToggle(player.getUniqueId(), false);
 				ChatManager.getInstance().sendMessage(player, Visibility.messageToggleOff);
-			} else if (Visibility.getItemInHand(player).equals(Visibility.createItemStack(false))) {
+			} else if (Visibility.getItemInHand(player).isSimilar(Visibility.createItemStack(false))) {
 				if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 				if (!Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) { if (Visibility.enableWorldToggleMessage) { ChatManager.getInstance().sendMessage(player, Visibility.messageWorld); } return; }
 				if (!player.hasPermission("visibility.show")) { ChatManager.getInstance().sendMessage(player, Visibility.messagePermission); return; }
@@ -211,8 +210,8 @@ public class PlayerListener implements Listener {
 	public void onHandItemSwap(PlayerSwapHandItemsEvent event) {
 		Player player = event.getPlayer();
 		if (Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) {
-			if (event.getOffHandItem().equals(Visibility.createItemStack(true)) || event.getOffHandItem().equals(Visibility.createItemStack(false)) ||
-				event.getMainHandItem().equals(Visibility.createItemStack(true)) || event.getMainHandItem().equals(Visibility.createItemStack(false))) {
+			if (event.getOffHandItem().isSimilar(Visibility.createItemStack(true)) || event.getOffHandItem().isSimilar(Visibility.createItemStack(false)) ||
+				event.getMainHandItem().isSimilar(Visibility.createItemStack(true)) || event.getMainHandItem().isSimilar(Visibility.createItemStack(false))) {
 				event.setCancelled(true);
 				if (Visibility.enableItemSwitchMessage) {
 					ChatManager.getInstance().sendMessage(player, Visibility.messageSwitch);
@@ -225,7 +224,7 @@ public class PlayerListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent event) {
 		Player player = event.getPlayer();
 		if (Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) {
-			if (Visibility.getItemInHand(player).equals(Visibility.createItemStack(true)) || Visibility.getItemInHand(player).equals(Visibility.createItemStack(false))) {
+			if (Visibility.getItemInHand(player).isSimilar(Visibility.createItemStack(true)) || Visibility.getItemInHand(player).isSimilar(Visibility.createItemStack(false))) {
 				if (event.getCause().equals(TeleportCause.ENDER_PEARL) || event.getCause().equals(TeleportCause.CHORUS_FRUIT)) {
 					event.setCancelled(true);
 				}
@@ -237,7 +236,7 @@ public class PlayerListener implements Listener {
 	public void onDropItem(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
 		if (Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) {
-			if (event.getItemDrop().getItemStack().equals(Visibility.createItemStack(true)) || event.getItemDrop().getItemStack().equals(Visibility.createItemStack(false))) {
+			if (event.getItemDrop().getItemStack().isSimilar(Visibility.createItemStack(true)) || event.getItemDrop().getItemStack().isSimilar(Visibility.createItemStack(false))) {
 				event.setCancelled(true);
 				if (Visibility.enableItemSwitchMessage) {
 					ChatManager.getInstance().sendMessage(player, Visibility.messageSwitch);
@@ -250,15 +249,15 @@ public class PlayerListener implements Listener {
 	public void onClickInventory(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
 		if (Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) {
-			if ((event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) && (event.getCurrentItem().equals(Visibility.createItemStack(true)) || event.getCurrentItem().equals(Visibility.createItemStack(false)))) {
+			if ((event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) && (event.getCurrentItem().isSimilar(Visibility.createItemStack(true)) || event.getCurrentItem().isSimilar(Visibility.createItemStack(false)))) {
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				if (Visibility.enableItemSwitchMessage) {
 					ChatManager.getInstance().sendMessage(player, Visibility.messageSwitch);
 				}
 			} else if (event.getHotbarButton() != -1) {
-				if ((event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) && (player.getInventory().getItem(event.getHotbarButton()) != null)) {
-					if (player.getInventory().getItem(event.getHotbarButton()).equals(Visibility.createItemStack(true)) || player.getInventory().getItem(event.getHotbarButton()).equals(Visibility.createItemStack(false))) {
+				if ((event.getCurrentItem() != null) && (player.getInventory().getItem(event.getHotbarButton()) != null)) {
+					if (player.getInventory().getItem(event.getHotbarButton()).isSimilar(Visibility.createItemStack(true)) || player.getInventory().getItem(event.getHotbarButton()).isSimilar(Visibility.createItemStack(false))) {
 						event.setCancelled(true);
 						event.setResult(Result.DENY);
 						if (Visibility.enableItemSwitchMessage) {
@@ -273,14 +272,14 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onCreateInventory(InventoryCreativeEvent event) {
 		Player player = (Player) event.getWhoClicked();
-		if ((event.getClick().equals(ClickType.CREATIVE))) {
-			if ((event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) && (event.getCurrentItem().equals(Visibility.createItemStack(true)) || event.getCurrentItem().equals(Visibility.createItemStack(false)))) {
+		if (Visibility.enabledWorlds.contains(player.getLocation().getWorld().getName().toString())) {
+			if ((event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) && (event.getCurrentItem().isSimilar(Visibility.createItemStack(true)) || event.getCurrentItem().isSimilar(Visibility.createItemStack(false)))) {
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				if (Visibility.enableItemSwitchMessage) {
 					ChatManager.getInstance().sendMessage(player, Visibility.messageSwitch);
 				}
-			} else if ((event.getCursor() != null && event.getCursor().getType() != Material.AIR) && (event.getCursor().equals(Visibility.createItemStack(true)) || event.getCursor().equals(Visibility.createItemStack(false)))) {
+			} else if ((event.getCursor() != null && event.getCursor().getType() != Material.AIR) && (event.getCursor().isSimilar(Visibility.createItemStack(true)) || event.getCursor().isSimilar(Visibility.createItemStack(false)))) {
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				if (Visibility.enableItemSwitchMessage) {
